@@ -3,21 +3,53 @@ canvas {
     top: 0;
     left: 0;
     z-index: -99;
-  }
-  html {
-    scroll-behavior: smooth;
-    scroll-snap-type: y mandatory;
-  }
-  h1{
-    color: white;
-  }
-  section{
-    scroll-snap-align: start;
-    padding-top:5%;
-    padding-left:5%;
-    height: 100vh;
-    /* background-color: blueviolet; */
-  }
-  .fill{
-    height:50vh;
-  }
+    background: rgb(173,155,155);
+background: radial-gradient(circle, rgba(173,155,155,1) 0%, rgba(204,192,192,1) 23%, rgba(255,252,252,1) 68%, rgba(255,252,252,1) 73%, rgba(255,253,253,1) 91%, rgba(255,255,255,1) 100%);
+}
+html {
+  scroll-behavior: smooth;
+  scroll-snap-type: y mandatory;
+}
+
+section{
+  scroll-snap-align: start;
+  height: 100vh;
+  /* background-color: blueviolet; */
+}
+.fill{
+  height:50vh;
+}
+.card{
+  background-color: rgba(255, 255, 255, 0.346);  
+  backdrop-filter: blur(5px);
+  border-radius: 4%;
+  justify-content: center;
+  text-align: center;
+  backdrop-filter: blur(5px);
+  height:50vh;
+  width:50vw;
+}
+h1{
+  color: black;
+}
+  
+/* ===== Scrollbar CSS ===== */
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #b79cbf #ffffff;
+}
+
+/* Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+  width: 5px;
+}
+
+*::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-image: url(https://64.media.tumblr.com/5d7ab997c9daa879a320f9ef21e895b7/tumblr_ooeddrvOJE1uzwgsuo1_400.gif);
+  border-radius: 10px;
+}

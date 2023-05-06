@@ -12,13 +12,14 @@ const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerH
 
 const renderer = new THREE.WebGLRenderer({
     canvas: document.querySelector('#bg'),
+    alpha:true
 })
 
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
 camera.position.set(0,.5,1);
 renderer.render(scene, camera);
-scene.background = new THREE.Color( 0x474643);
+// scene.background = new THREE.Color("rgb(227,227,227)");
 const textureloader = new THREE.TextureLoader(); 
 const colors = textureloader.load('assets/colors.gif');
 
