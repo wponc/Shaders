@@ -1,9 +1,9 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import fs from './shaders/frag.js';
+import vs from './shaders/vert.js';
+// import * as meshline from 'meshline';
 
-const textureloader = new THREE.TextureLoader();
-const gold = textureloader.load('assets/silver.jpg');
-  
 
 const scene = new THREE.Scene();
 
@@ -16,80 +16,78 @@ const renderer = new THREE.WebGLRenderer({
 
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
-camera.position.set(0, 10,10);
+camera.position.set(0,.5,1);
 renderer.render(scene, camera);
+scene.background = new THREE.Color( 0x474643);
+const textureloader = new THREE.TextureLoader(); 
+const colors = textureloader.load('assets/colors.gif');
+
+const bgGeometry = new THREE.PlaneGeometry(4,2,100,100);
+const bgMaterial = new THREE.MeshBasicMaterial({ map: colors });
+const bgMesh = new THREE.Mesh(bgGeometry, bgMaterial);
+bgMesh.position.set(0, 0, -1);
+// scene.add(bgMesh);
 
 const uniforms = {
     u_time: {type: 'f', value: 0.0},
     u_resolution: {type: 'v2', value: new THREE.Vector2(window.innerWidth, window.innerHeight).multiplyScalar(window.devicePixelRatio)},
     u_mouse: {type: 'v2', value: new THREE.Vector2(0.0, 0.0)},
-    texture: { type: "t", value: textureloader.load("assets/silver.jpg")}
+    u_scroll: {type: 'f', value: 0.0}
+    ,u_texture: {type: 't', value: colors}
 }
+
+const sizes = {
+    width: window.innerWidth,
+    height: window.innerHeight
+}
+
+const cursor = {}
+cursor.x = 0
+cursor.y = 0
 window.addEventListener('mousemove', function(e) {
     uniforms.u_mouse.value.set(e.screenX / this.window.innerWidth, 1 - e.screenY / this.window.innerHeight)
+    cursor.x = event.clientX / sizes.width - 0.5
+    cursor.y = event.clientY / sizes.height - 0.5
 })
-const terrain = textureloader.load('assets/terrain.jpg');
-const ridges = textureloader.load('assets/ridges.jpg');
-const disp = textureloader.load('assets/displ.jpg');
-const colors = textureloader.load('assets/colors.jpg');
-const geometry = new THREE.BoxGeometry(15,1,15,50,50,50);
-const material = new THREE.ShaderMaterial({
-    // wireframe: true,
-    vertexShader: `
-    varying vec3 pos;
-    uniform float u_time;
 
-    void main() { 
-        vec4 result;
-
-        // change the amplitude of the box's waves
-        // result = vec4(position.x, 4.0*sin(position.z/4.0) + position.y, position.z, 1.0);
-        result = vec4(position.x, .45 * sin(position.z/.4 + u_time) + position.y,.45 * sin(position.x/.4 + u_time) + position.z, 1.0);
-
-        gl_Position = projectionMatrix
-          * modelViewMatrix
-          * result;
+// window.addEventListener('scroll', () =>
+// {
+//     scrollY = window.scrollY
+//     console.log(scrollY)
+// })
+let perc;
+document.getScroll = function() {
+    if (window.pageYOffset != undefined) {
+        return [pageXOffset, pageYOffset];
+    } else {
+        var sy, d = document,
+            r = d.documentElement,
+            b = d.body;
+        // sx = r.scrollLeft || b.scrollLeft || 0;
+        sy = r.scrollTop || b.scrollTop || 0;
+        return [sy];
     }
-    `,
-    fragmentShader: `
+}
 
-    uniform float u_time;
-    
-    void main() {
-      
-        gl_FragColor = vec4((sin(u_time) * .2) * .4,(cos(u_time) * .2) * .4,.2, 1.0);
-    }`,
-    uniforms
-  });
+const geom = new THREE.BoxGeometry(2,.5,2, 100,100,100)
+// const mat = new THREE.MeshPhysic,alMaterial({
+//     roughness: 0,
+//     transmission:1,
+//     thickness: 0.2,
+// })
 
-const sphere = new THREE.Mesh(geometry, material);
-sphere.position.set(0,0,0);
-scene.add(sphere);
-//sphere.rotateX(300);
-
-
-
-
-const pointLight = new THREE.PointLight(0xffffff, 1.5)
-scene.add(pointLight);
-pointLight.position.x = 2
-pointLight.position.y = 3
-pointLight.position.z = 4
-scene.add(pointLight)
+const mat = new THREE.ShaderMaterial({
+    wireframe:true,
+    vertexShader: vs,
+    fragmentShader: fs,
+    uniforms,
+})
+const mesh = new THREE.Mesh(geom, mat);
+scene.add(mesh);
+mesh.position.set(0,0,.5);
+// mesh.rotateZ(-2)
 
 
-const lightHelper = new THREE.PointLightHelper(pointLight);
-scene.add(lightHelper);
-
-const light1 = new THREE.SpotLight( 0xffffff, 2, 200, 10 );
-light1.position.set( -30, 30, 40 );
-light1.castShadow = true;
-light1.shadow.mapSize.x = 2048;
-light1.shadow.mapSize.y = 2048;
-light1.shadow.camera.near = 0.1;
-scene.add(light1);
-const ambient = new THREE.AmbientLight(0xffffff, 2);
-scene.add(ambient);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 
@@ -97,19 +95,15 @@ window.addEventListener('resize', function(){
     camera.aspect = window.innerWidth / this.window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
-
 });
-
 
 const clock = new THREE.Clock();
 let elapsed;
 function animate(){
-    uniforms.u_time.value = clock.getElapsedTime();
-    elapsed = clock.getElapsedTime() * .1;
     requestAnimationFrame(animate);
     controls.update();
-    // sphere.rotateZ(.0005);
-    // sphere.position.set(Math.sin(elapsed) * .5, Math.cos(elapsed), 0);
+    uniforms.u_time.value = clock.getElapsedTime() * .25;
+    uniforms.u_scroll.value = scrollY * sizes.height / 100000;
     renderer.render(scene, camera);
 }
 

@@ -4,6 +4,20 @@ canvas {
     left: 0;
     z-index: -99;
   }
+  html {
+    scroll-behavior: smooth;
+    scroll-snap-type: y mandatory;
+  }
   h1{
     color: white;
+  }
+  section{
+    scroll-snap-align: start;
+    padding-top:5%;
+    padding-left:5%;
+    height: 100vh;
+    /* background-color: blueviolet; */
+  }
+  .fill{
+    height:50vh;
   }
